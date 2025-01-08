@@ -26,8 +26,8 @@ let baseSize = 50;
 let extraSize = 200;
 let rangeStart = 0;
 let pendingStart = 0;
-let rangeEnd
-let pendingEnd
+let rangeEnd;
+let pendingEnd;
 
 function preload() {
   table = loadTable("data/installs.csv", "csv", "header");
@@ -53,8 +53,8 @@ function setup() {
   minValue = min(monthlyValues);
   maxValue = max(monthlyValues);
   // set hot and cold colours
-  minColour = color(14, 59, 237, 200);
-  maxColour = color(237, 14, 14, 200);
+  minColour = color(237, 14, 14, 200); /*red*/
+  maxColour = color(195, 255, 0); /*green*/
   textAlign(CENTER, CENTER);
   noStroke();
   rectMode(CENTER);
@@ -71,16 +71,16 @@ function setup() {
     positions.push({ x: x, y: y });
   }
   pendingEnd = rangeEnd = monthlyValues.length;
-  
 }
 function draw() {
   background(bg, 10);
+
   // draw header
   textSize(36);
   fill(255);
   text(HEADERTEXT, width / 2, TOPMARGIN / 2);
   // declare temporary variables
-  let x, y, d;
+  let x, y, d, r;
   // size values
 
   // calculate a value from 0 to 1 based on the current MW value compared to precalculated min and max MW values
@@ -91,18 +91,29 @@ function draw() {
     // calculate size
     d = baseSize + map(monthlyValues[i], minValue, maxValue, 0, extraSize);
     //assign x and y to top / left of square
+    let noiseX = noise(positions[i].x);
 
-
-    // positions[i].x = positions[i].x + random(0, 5);
-
+    let noiseY = noise(positions[i].y);
+    positions[i].x += map(noiseX, 0, 1, -50, 50);
+    positions[i].y += map(noiseY, 0, 1, -50, 50);
+    
     x = positions[i].x;
     y = positions[i].y;
+    r = d/2;
+    //test if circle leaves screen
+    if(x-r<0|| x+r>width|| y-r<0 || y+r>height){
+      positions[i].x = random(r,width-r);
+      positions[i].y = random(r,height-r);
+    } 
+    
+
+    // positions[i].x = positions[i].x + random(0, 5);
 
     delta = map(monthlyValues[i], minValue, maxValue, 0, 1);
     noStroke();
     // use lerpColour to derive a colour value proportionally between cold and hot colours
     fill(lerpColor(minColour, maxColour, delta));
-    circle(x, y, d);
+    circle(positions[i].x, positions[i].y, d);
     textSize(12);
     fill(0);
     noStroke();
@@ -122,8 +133,8 @@ function allCC(e) {
   // console.log("controller:", e.controller.number, "value:", e.value);
   switch (e.controller.number) {
     case 32: {
-      bg = e.value * 255;
-      background(bg);
+      // bg = e.value * 255;
+      // background(bg);
       break;
     }
     case 33: {
@@ -136,11 +147,21 @@ function allCC(e) {
       break;
     }
     case 36: {
-      pendingStart = floor(map(e.value, 0, 1, 0, floor(monthlyValues.length/2) ))
+      pendingStart = floor(
+        map(e.value, 0, 1, 0, floor(monthlyValues.length / 2))
+      );
       break;
     }
     case 37: {
-      pendingEnd = floor(map(e.value, 0, 1, floor(monthlyValues.length/2)+1, monthlyValues.length))
+      pendingEnd = floor(
+        map(
+          e.value,
+          0,
+          1,
+          floor(monthlyValues.length / 2) + 1,
+          monthlyValues.length
+        )
+      );
       break;
     }
     case 38: {
