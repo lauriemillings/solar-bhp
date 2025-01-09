@@ -28,12 +28,20 @@ let rangeStart = 0;
 let pendingStart = 0;
 let rangeEnd
 let pendingEnd
+// let emitter;
+// a square image with transparent background, 32px by 32px so runs smoothly, texture taken from Daniel Shiffman
+// let img;
 
 function preload() {
+  img = loadImage("texture32.png");
   table = loadTable("data/installs.csv", "csv", "header");
 }
 function setup() {
   createCanvas(innerWidth, innerHeight);
+
+  // doesn't need let as the global variable has already been defined
+  // emitter = new Emitter(400, 400);
+
   // get names of months
   monthlyNames = table.columns;
   // get rid of first value (unused)
@@ -74,6 +82,17 @@ function setup() {
   
 }
 function draw() {
+  // clears out the particles that were there on previous frames rather than leaving a path of colour
+  // clear();
+  // background(0);
+  // // adds the colours on top of each other to get a brighter centre
+  // blendMode(ADD);
+
+  // // emits 2 particles per frame from the centre point, increasing this increases the brightness and density of the orb
+  // emitter.emit(2);
+  // emitter.show();
+  // emitter.update();
+
   background(bg, 10);
   // draw header
   textSize(36);
