@@ -28,6 +28,7 @@ let rangeStart = 0;
 let pendingStart = 0;
 let rangeEnd
 let pendingEnd
+let textVisible = true;
 
 function preload() {
   table = loadTable("data/installs.csv", "csv", "header");
@@ -55,6 +56,12 @@ function setup() {
   // set hot and cold colours
   minColour = color(14, 59, 237, 200);
   maxColour = color(237, 14, 14, 200);
+  //colours for buttons
+  limeColour = color(6, 112, 29, 200);
+  lemonColour = color(219, 255, 59, 200);
+  whiteColour= color(235, 235, 235, 200);
+  blackColour= color(78, 79, 78, 200);
+
   textAlign(CENTER, CENTER);
   noStroke();
   rectMode(CENTER);
@@ -66,8 +73,9 @@ function setup() {
   let x, y, d;
   for (let i = 0; i < monthlyValues.length; i++) {
     d = baseSize + map(monthlyValues[i], minValue, maxValue, 0, extraSize);
-    x = random(d / 2, width - d / 2);
-    y = random(d / 2 + TOPMARGIN, height - d / 2);
+    let r = d / 2 + d / 6;
+    x = random(r,width-r);
+    y = random(TOPMARGIN + r,height-r);
     positions.push({ x: x, y: y });
   }
   pendingEnd = rangeEnd = monthlyValues.length;
@@ -88,18 +96,31 @@ function draw() {
   let delta;
   rangeStart = pendingStart;
   rangeEnd = pendingEnd;
+
+  let randomRange = 0
+  let noiseRange =50
+  let noiseAmount= 1
+
   for (let i = rangeStart; i < rangeEnd; i++) {
     // calculate size
     d = baseSize + map(monthlyValues[i], minValue, maxValue, 0, extraSize);
-
-    let noiseX = noise(positions[i].x);
-    let noiseY = noise(positions[i].y);
+    let r = d / 2;
+    let noiseX = noise(positions[i].x *noiseAmount);
+    let noiseY = noise(positions[i].y * noiseAmount);
     
-    x = positions[i].x + map(noiseX, 0, 1, -50, 50);
-    y = positions[i].y + map(noiseY, 0, 1, -50, 50);
+    x = positions[i].x + map(noiseX, 0, 1, -noiseRange, noiseRange);
+    y = positions[i].y + map(noiseY, 0, 1, -noiseRange, noiseRange);
 
-    positions[i].x += 0.01;
-    positions[i].y += 0.01;
+    // if(x-r<0|| x+r>width|| y-r<0 || y+r>height){
+    //   x = random(r,width-r);
+    //   y = random(r,height-r);
+    // }
+
+    positions[i].x += 0.01 -random(0, 0.05);
+    positions[i].y += 0.01 -random(0, 0.05);
+
+    // positions[i].x=x
+    // positions[i].y=y
 
     // mouse controls - change for controller
     // circle size increases when hovered over
@@ -108,6 +129,8 @@ function draw() {
     let mouseRadius = map(mouseDistance, 0, width, 100, 10); //100 is closest, 10 is furthest
     // calculates circle size
     let finalRadius = d + mouseRadius;
+    //
+    
 
     delta = map(monthlyValues[i], minValue, maxValue, 0, 1);
     noStroke();
@@ -117,7 +140,9 @@ function draw() {
     fill(0);
     noStroke();
     // add text label
-    text(monthlyNames[i], x, y);
+    if (textVisible) {
+      text(monthlyNames[i], x, y);
+    }
   }
 }
 
@@ -151,11 +176,21 @@ function allCC(e) {
       break;
     }
     case 36: {
-      pendingStart = floor(map(e.value, 0, 1, 0, floor(monthlyValues.length/2) ))
+      pendingStart = floor(
+        map(e.value, 0, 1, 0, floor(monthlyValues.length / 2))
+      );
       break;
     }
     case 37: {
-      pendingEnd = floor(map(e.value, 0, 1, floor(monthlyValues.length/2)+1, monthlyValues.length))
+      pendingEnd = floor(
+        map(
+          e.value,
+          0,
+          1,
+          floor(monthlyValues.length / 2),
+          monthlyValues.length
+        )
+      );
       break;
     }
     case 38: {
@@ -176,24 +211,35 @@ function allNoteOn(e) {
   switch (e.data[1]) {
     case 40: {
       if (e.value) {
+        minColour= limeColour
+        maxColour = lemonColour
+        // map(e.value, 0,1,0, fill(lerpColor(limeColour, lemonColour, alpha)));
       } else {
+        
+        // fill(lerpColor(minColour, maxColour, .5));
       }
       break;
     }
     case 41: {
       if (e.value) {
-      } else {
+        //if value=1 button is pressed, value=0 button is released  
+        textVisible = !textVisible;
       }
-      break;
+
     }
+    break;
     case 42: {
       if (e.value) {
+        minColour = color(14, 59, 237, 200);
+        maxColour = color(237, 14, 14, 200);
       } else {
       }
       break;
     }
     case 43: {
       if (e.value) {
+        minColour=whiteColour
+        maxColour=blackColour
       } else {
       }
       break;

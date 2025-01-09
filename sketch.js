@@ -130,7 +130,7 @@ let bg = 0;
  * @param {Event} e
  */
 function allCC(e) {
-  // console.log("controller:", e.controller.number, "value:", e.value);
+  console.log("controller:", e.controller.number, "value:", e.value);
   switch (e.controller.number) {
     case 32: {
       // bg = e.value * 255;
@@ -158,7 +158,7 @@ function allCC(e) {
           e.value,
           0,
           1,
-          floor(monthlyValues.length / 2) + 1,
+          floor(monthlyValues.length / 2) -1,
           monthlyValues.length
         )
       );
